@@ -12,10 +12,18 @@ Be sure to have your New Relic [account ID](https://docs.newrelic.com/docs/accou
 ### Getting Started
 
 #### Configure your credentials
+
+0. `cd infra`
+
 ```
 pulumi config set newrelic:accountId XXXXXXXXXXXXXX
 pulumi config set newrelic:apiKey YYYYYYYYYYYYYY --secret
 pulumi config set newrelic:adminApiKey YYYYYYYYYYYYYY --secret
+```
+
+#### Update the notification destination email address in infra/index.ts.
+```
+value: 'example@example.com',
 ```
 
 #### Start the App
@@ -25,10 +33,17 @@ node app/index.js
 
 #### Setup the Alert Notification
 ```
+cd infra
 pulumi up
 ```
 
 #### Test the Alert
 ```
 curl http://localhost:3000
+```
+
+#### Teardown
+```
+cd infra
+pulumi destroy
 ```
