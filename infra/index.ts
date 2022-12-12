@@ -3,16 +3,16 @@ import * as newrelic from '@pulumi/newrelic';
 
 const name = 'getting-started-pulumi';
 
-// 1.
-// Define an alert policy and condition
+// 
+// 1. Define an alert policy and condition
 // 
 const policy = new newrelic.AlertPolicy(`${name}-alert`);
 
 export const _policy = policy
 
-// 2.
-// Define an alert condition to trigger an alert when the
-// service's error rate exceeds 1% over a five-minute period.
+// 
+// 2. Define an alert condition to trigger an alert when the
+//    service's error rate exceeds 1% over a five-minute period.
 // 
 const condition = new newrelic.NrqlAlertCondition(`${name}-condition`, {
     policyId: policy.id.apply(id => parseInt(id)),
@@ -26,19 +26,19 @@ const condition = new newrelic.NrqlAlertCondition(`${name}-condition`, {
         thresholdOccurrences: "at_least_once",
     },
     violationTimeLimitSeconds: 259200,
+}, {
+    dependsOn: [policy,]
 });
 
-export const _condition = condition
-
-// 3.
-// Setup a notification destination.
+// 
+// 3. Setup a notification destination.
 // 
 const notificationDestination = new newrelic.NotificationDestination(`${name}-destination`, {
     type: 'EMAIL',
     properties: [
         {
             key: 'email',
-            value: 'pdunbar@newrelic.com',
+            value: 'example@example.com',
         },
         {
             key: 'includeJsonAttachment',
@@ -47,10 +47,8 @@ const notificationDestination = new newrelic.NotificationDestination(`${name}-de
     ],
 });
 
-export const _notificationDestination = notificationDestination
-
-// 4.
-// Define a notification channel
+//
+// 4. Define a notification channel
 // 
 const notificationChannel = new newrelic.NotificationChannel(`${name}-channel`, {
     destinationId: notificationDestination.id.apply(id => id),
@@ -58,35 +56,34 @@ const notificationChannel = new newrelic.NotificationChannel(`${name}-channel`, 
     properties: [
         // {
         //     key: "subject",
-        //     value: "New Subject Title",
+        //     value: "{{issueTitle}}",
         // },
-        {
-            key: "custom_message",
-            value: "{{foobar}}",
-        },
     ],
     type: "EMAIL",
+}, {
+    dependsOn: [notificationDestination,]
 });
 
-export const _notificationChannel = notificationChannel
-
-// 5.
-// send a notification.
+// 
+// 5. Create a workflow and attach notification channel.
 // 
 const workflow = new newrelic.Workflow(`${name}-workflow`, {
+    accountId: newrelic.config.accountId,
     issuesFilter: {
         name,
+        type: "FILTER",
         predicates: [{
             attribute: "labels.policyName",
             operator: "EXACTLY_MATCHES",
             values: [policy.name.apply(name => name)],
         }],
-        type: "FILTER",
     },
     destinations: [{
         channelId: notificationChannel.id.apply(id => id)
     }],
     mutingRulesHandling: "NOTIFY_ALL_ISSUES",
+}, {
+    dependsOn: [notificationChannel,]
 });
 
 export const _workflow = workflow
