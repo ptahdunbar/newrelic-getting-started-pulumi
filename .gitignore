@@ -1,0 +1,6 @@
+/bin/
+node_modules/
+Pulumi.*.yaml
+.env
+newrelic_agent.log
+newrelic.js
