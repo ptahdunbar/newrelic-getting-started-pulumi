@@ -13,7 +13,7 @@ Be sure to have your New Relic [account ID](https://docs.newrelic.com/docs/accou
 
 #### Configure your credentials
 
-0. `cd infra`
+* `cd infra`
 
 ```
 pulumi config set newrelic:accountId XXXXXXXXXXXXXX

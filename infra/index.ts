@@ -1,6 +1,9 @@
 import * as pulumi from '@pulumi/pulumi';
 import * as newrelic from '@pulumi/newrelic';
 
+// 
+// 0. Name of the app (should match app_name in app/newrelic.js)
+// 
 const name = 'getting-started-pulumi';
 
 // 
@@ -20,14 +23,14 @@ const condition = new newrelic.NrqlAlertCondition(`${name}-condition`, {
         query: `SELECT count(*) FROM TransactionError WHERE (appName = '${name}') AND (\`error.expected\` IS FALSE OR \`error.expected\` IS NULL)`,
     },
     critical: {
-        operator: "above",
+        operator: "above_or_equals",
         threshold: 1,
         thresholdDuration: 300,
         thresholdOccurrences: "at_least_once",
     },
     violationTimeLimitSeconds: 259200,
 }, {
-    dependsOn: [policy,]
+    dependsOn: policy,
 });
 
 // 
@@ -38,7 +41,7 @@ const notificationDestination = new newrelic.NotificationDestination(`${name}-de
     properties: [
         {
             key: 'email',
-            value: 'example@example.com',
+            value: 'example@example.org',
         },
         {
             key: 'includeJsonAttachment',
@@ -53,15 +56,23 @@ const notificationDestination = new newrelic.NotificationDestination(`${name}-de
 const notificationChannel = new newrelic.NotificationChannel(`${name}-channel`, {
     destinationId: notificationDestination.id.apply(id => id),
     product: "IINT",
+    type: "EMAIL",
     properties: [
+        {
+            key: '',
+            value: '',
+        },
         // {
         //     key: "subject",
         //     value: "{{issueTitle}}",
         // },
+        // {
+        //     key: "customDetailsEmail",
+        //     value: "issue id - {{issueId}}",
+        // },
     ],
-    type: "EMAIL",
 }, {
-    dependsOn: [notificationDestination,]
+    dependsOn: notificationDestination,
 });
 
 // 
@@ -73,7 +84,7 @@ const workflow = new newrelic.Workflow(`${name}-workflow`, {
         name,
         type: "FILTER",
         predicates: [{
-            attribute: "labels.policyName",
+            attribute: "accumulations.policyName",
             operator: "EXACTLY_MATCHES",
             values: [policy.name.apply(name => name)],
         }],
@@ -83,7 +94,7 @@ const workflow = new newrelic.Workflow(`${name}-workflow`, {
     }],
     mutingRulesHandling: "NOTIFY_ALL_ISSUES",
 }, {
-    dependsOn: [notificationChannel,]
+    dependsOn: notificationChannel,
 });
 
 export const _workflow = workflow
