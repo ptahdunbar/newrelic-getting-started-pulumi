@@ -23,7 +23,7 @@ pulumi config set newrelic:adminApiKey YYYYYYYYYYYYYY --secret
 
 #### Update the notification destination email address in infra/index.ts.
 ```
-value: 'example@example.com',
+value: 'CHANGEME@example.com',
 ```
 
 #### Start the App
@@ -40,6 +40,7 @@ pulumi up
 #### Test the Alert
 ```
 curl http://localhost:3000
+for i in `seq 1 100`; do curl localhost:3000; done
 ```
 
 #### Teardown

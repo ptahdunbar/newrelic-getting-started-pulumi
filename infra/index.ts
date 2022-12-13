@@ -1,6 +1,9 @@
 import * as pulumi from '@pulumi/pulumi';
 import * as newrelic from '@pulumi/newrelic';
 
+// Quick access link to NR1
+export const _nr1_dashboard = 'https://one.newrelic.com'
+
 // 
 // 0. Name of the app (should match app_name in app/newrelic.js)
 // 
@@ -11,7 +14,7 @@ const name = 'getting-started-pulumi';
 // 
 const policy = new newrelic.AlertPolicy(`${name}-alert`);
 
-export const _policy = policy
+// export const _policy = policy
 
 // 
 // 2. Define an alert condition to trigger an alert when the
@@ -28,10 +31,12 @@ const condition = new newrelic.NrqlAlertCondition(`${name}-condition`, {
         thresholdDuration: 300,
         thresholdOccurrences: "at_least_once",
     },
-    violationTimeLimitSeconds: 259200,
+    violationTimeLimitSeconds: 300000,
 }, {
     dependsOn: policy,
 });
+
+// export const _condition = condition
 
 // 
 // 3. Setup a notification destination.
@@ -41,7 +46,7 @@ const notificationDestination = new newrelic.NotificationDestination(`${name}-de
     properties: [
         {
             key: 'email',
-            value: 'example@example.org',
+            value: 'CHANGEME@example.com',
         },
         {
             key: 'includeJsonAttachment',
@@ -49,6 +54,8 @@ const notificationDestination = new newrelic.NotificationDestination(`${name}-de
         }
     ],
 });
+
+// export const _notificationDestination = notificationDestination
 
 //
 // 4. Define a notification channel
@@ -58,22 +65,22 @@ const notificationChannel = new newrelic.NotificationChannel(`${name}-channel`, 
     product: "IINT",
     type: "EMAIL",
     properties: [
+        // See the link on how to customize customDetailsEmail
+        // https://docs.newrelic.com/docs/alerts-applied-intelligence/notifications/message-templates/#variables-menu
         {
-            key: '',
-            value: '',
+            key: "subject",
+            value: "{{issueTitle}}",
         },
         // {
-        //     key: "subject",
-        //     value: "{{issueTitle}}",
-        // },
-        // {
         //     key: "customDetailsEmail",
-        //     value: "issue id - {{issueId}}",
+        //     value: "issue id: '{{issueId}}'\nimpactedEntitiesCount: '{{impactedEntitiesCount}}'\nentitiesData.entities: '{{entitiesData.entities}}'\nlabels.targetId: '{{labels.targetId}}'\nPolicy Url: '{{policyUrl}}'\n'\n",
         // },
     ],
 }, {
     dependsOn: notificationDestination,
 });
+
+// export const _notificationChannel = notificationChannel
 
 // 
 // 5. Create a workflow and attach notification channel.
@@ -97,4 +104,4 @@ const workflow = new newrelic.Workflow(`${name}-workflow`, {
     dependsOn: notificationChannel,
 });
 
-export const _workflow = workflow
+// export const _workflow = workflow
