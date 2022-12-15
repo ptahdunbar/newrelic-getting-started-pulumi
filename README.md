@@ -27,14 +27,20 @@ cp node_modules/newrelic/newrelic.js .
 #### Configure your infrastructure
 
 0. `cd infra`
-1. Get your newrelic [account ID](https://docs.newrelic.com/docs/accounts/accounts-billing/account-structure/account-id/), and [api key](https://docs.newrelic.com/docs/apis/intro-apis/new-relic-api-keys/)
+1. Before running the following script, replace all the placeholder values with their appropriate value.
 
 ```
 pulumi config set newrelic:accountId XXXXXXXXXXXXXX
 pulumi config set newrelic:apiKey YYYYYYYYYYYYYY --secret
 pulumi config set newrelic:adminApiKey YYYYYYYYYYYYYY --secret
+
 pulumi config set notifyViaEmail CHANGEME@example.com
-pulumi config set notifyViaWebhook https://webhook.site/debac735-3388-4638-acf7-765301e9dc99
+
+pulumi config set notifyViaWebhook https://webhook.site
+pulumi config set webhookPayloadTemplate '{"name": "foo"}'
+
+pulumi config set slackChannelId C00YYYYXXXX
+pulumi config set slackTeamName AmceCorp
 ```
 
 #### Start the App
@@ -62,8 +68,9 @@ pulumi destroy
 
 
 #### Setting up slack integration
-[Slack's authentication requires a UI.](https://docs.newrelic.com/docs/alerts-applied-intelligence/notifications/notification-integrations/#slack)
+* [Slack's authentication requires a UI.](https://docs.newrelic.com/docs/alerts-applied-intelligence/notifications/notification-integrations/#slack)
+* `cd infra`
+
 ```
 pulumi import newrelic:index/notificationDestination:NotificationDestination <name> <id> 
 ```
-

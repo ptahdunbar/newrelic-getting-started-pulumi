@@ -152,7 +152,7 @@ const slackDestination = new newrelic.NotificationDestination(`${name}-slack`, {
         },
         {
             key: 'teamName',
-            value: config.require('slackTeam'),
+            value: config.require('slackTeamName'),
         },
     ]
 }, {
