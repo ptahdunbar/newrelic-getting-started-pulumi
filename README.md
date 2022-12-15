@@ -69,8 +69,10 @@ pulumi destroy
 
 #### Setting up slack integration
 * [Slack's authentication requires a UI.](https://docs.newrelic.com/docs/alerts-applied-intelligence/notifications/notification-integrations/#slack)
+* <ID> -- After successfully linking slack to newrelic, copy the destination id from the newrelic UI and replace that with <ID>.
+* <NAME> -- The name MUST be the same as the `slackDestination` name.
 * `cd infra`
 
 ```
-pulumi import newrelic:index/notificationDestination:NotificationDestination <name> <id> 
+pulumi import newrelic:index/notificationDestination:NotificationDestination getting-started-pulumi-slack <ID>
 ```
